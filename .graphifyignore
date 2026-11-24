@@ -1,0 +1,44 @@
+# Claude Code — nunca commitar segredos
+.claude/settings.local.json
+.mcp.json
+.env
+.worktrees/
+.worktree
+worktrees/
+.pi_memory.md
+.vscode/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/.DS_Store
+**/Thumbs.db
+**/obj/
+**/bin/
+**/node_modules/
+**/.venv/
+**/venv/
+**/dist/
+**/coverage/
+**/CoverageReport/
+**/CoverageReport-Application/
+**/backups/
+**/logs/
+**/.cr/
+**/*.lscache
+**/__pycache__/
+graphify-out/
+
+# Go
+vendor/
+*.exe
+*.exe~
+*.test
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+go.work
+go.work.sum
+
+# Env files
+.env.*

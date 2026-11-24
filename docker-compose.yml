@@ -1,0 +1,13 @@
+services:
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: genova-file-monitoring-falkordb
+    ports:
+      - "6379:6379"
+      - "3900:3000"
+    environment:
+      - REDIS_ARGS=--user ${FALKORDB_USER} on >${FALKORDB_PASSWORD} ~* &* +@all --user default off
+      - FALKORDB_ARGS=THREAD_COUNT 4
+    volumes:
+      - C:\Docker-Volumes\falkordb_data\genova-file-monitoring:/var/lib/falkordb/data
+    restart: unless-stopped
