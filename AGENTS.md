@@ -10,7 +10,9 @@ App local para Windows, escrito em Go. Observa uma pasta de projeto, analisa cad
 - Go (`go.mod`: 1.27.4), módulo `github.com/wesleyxavier/genova-file-monitoring`
 - fsnotify (watcher), beeep (notificações Windows)
 - FalkorDB via Docker (`docker-compose.yml`)
-- LLM local / backend / modelo de embedding: A definir
+- LLM local: llama-server (llama.cpp), modelo `gemma-4-12B-it-qat-q4_0.gguf`, porta 11440 (nunca 11435; faixa permitida 11440-11450)
+- Modelo de embedding: A definir
+- Modelo de embedding: A definir
 
 ## Comandos
 | Ação | Comando |
@@ -19,6 +21,7 @@ App local para Windows, escrito em Go. Observa uma pasta de projeto, analisa cad
 | Testes | `go test ./...` |
 | Executar | `go run ./cmd/genova-file-monitoring` |
 | FalkorDB | `docker compose --env-file .env.development up -d` |
+| LLM | `llama-server -m C:\LLamaModels\gemma-4-12B-it-qat-q4_0.gguf -ngl 99 -fa on --cache-type-k q8_0 --cache-type-v q8_0 --port 11440` |
 
 ## Regras de operação
 1. **Regra Zero:** nunca presuma. Requisito ambíguo vira pergunta curta ao usuário.

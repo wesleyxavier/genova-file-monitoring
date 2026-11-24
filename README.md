@@ -9,12 +9,14 @@ Dar feedback de qualidade no momento do save, quando a correção custa menos. A
 - Go (módulo `github.com/wesleyxavier/genova-file-monitoring`)
 - fsnotify, beeep
 - FalkorDB (Docker)
-- LLM local e modelo de embedding: A definir
+- LLM local: llama-server (llama.cpp) com `gemma-4-12B-it-qat-q4_0.gguf`, porta 11440
+- Modelo de embedding: A definir
 
 ## Como executar
 1. Copie `.env.example` para `.env.development` e preencha `FALKORDB_USER` e `FALKORDB_PASSWORD`.
 2. Suba o FalkorDB: `docker compose --env-file .env.development up -d` (Redis em `6379`, Browser em `http://localhost:3900`).
-3. Execute o app: `go run ./cmd/genova-file-monitoring`.
+3. Suba o LLM: `llama-server -m C:\LLamaModels\gemma-4-12B-it-qat-q4_0.gguf -ngl 99 -fa on --cache-type-k q8_0 --cache-type-v q8_0 --port 11440`
+4. Execute o app: `go run ./cmd/genova-file-monitoring`.
 
 Mais detalhes no PRD (fora do repositório). Fluxo de especificação: Spec Kit (`.specify/`).
 
