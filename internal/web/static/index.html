@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Genova File Monitoring</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 24px;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    h1,
+    h2 {
+      color: #f8fafc;
+      margin-top: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    input,
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      margin-top: 4px;
+      border-radius: 4px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    button {
+      margin-top: 14px;
+      padding: 8px 14px;
+      border: 0;
+      border-radius: 4px;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button.secondary {
+      background: #334155;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+
+    button.secondary:hover {
+      background: #475569;
+    }
+
+    .row-flex {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .critica {
+      background: #991b1b;
+    }
+
+    .alta {
+      background: #9a3412;
+    }
+
+    .media {
+      background: #854d0e;
+    }
+
+    .baixa {
+      background: #334155;
+    }
+
+    .status-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .msg {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #38bdf8;
+    }
+
+    /* Virtual Scroll Shell */
+    .shell-viewport {
+      position: relative;
+      height: 220px;
+      overflow-y: auto;
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+
+    .shell-spacer {
+      position: relative;
+      width: 100%;
+    }
+
+    .shell-items {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+    }
+
+    .shell-line {
+      height: 24px;
+      line-height: 24px;
+      padding: 0 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-bottom: 1px solid #0f172a;
+    }
+
+    .ev-detected {
+      color: #94a3b8;
+    }
+
+    .ev-analyzing {
+      color: #38bdf8;
+    }
+
+    .ev-clean {
+      color: #4ade80;
+    }
+
+    .ev-finding {
+      color: #fbbf24;
+    }
+
+    .ev-error {
+      color: #f87171;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Genova File Monitoring</h1>
+  <div class="status-bar" id="health">Carregando status...</div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Configuração</h2>
+      <label>Pasta observada (watch_path)</label>
+      <div class="row-flex">
+        <input id="watch_path" placeholder="C:\Caminho\Do\Projeto">
+        <input type="file" id="pasta" multiple webkitdirectory style="display:none" onchange="onFolderPicked(event)">
+        <button type="button" class="secondary" onclick="pickDirectory()">Procurar...</button>
+      </div>
+      <label>Severidade mínima</label>
+      <select id="min_severity">
+        <option value="critica">Crítica</option>
+        <option value="alta">Alta</option>
+        <option value="media">Média</option>
+        <option value="baixa">Baixa (somente histórico)</option>
+      </select>
+      <label>Regras silenciadas (separadas por vírgula)</label>
+      <input id="silenced_rules" placeholder="no-debug-log">
+      <label>Extensões monitoradas (separadas por vírgula)</label>
+      <input id="extensions" placeholder=".go,.ts,.tsx,.js,.py">
+      <label>Debounce (ms)</label>
+      <input id="debounce_ms" type="number" min="100" max="10000" value="500">
+      <button onclick="saveConfig()">Salvar Configuração</button>
+      <div class="msg" id="cfg_msg"></div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="row-flex" style="justify-content: space-between;">
+          <h2 style="margin-bottom: 8px;">Shell de Atividade (Tempo Real)</h2>
+          <span style="font-size: 12px; color: #94a3b8;" id="shell_count">0 eventos</span>
+        </div>
+        <div class="shell-viewport" id="shell_viewport" onscroll="renderVirtualShell()">
+          <div class="shell-spacer" id="shell_spacer">
+            <div class="shell-items" id="shell_items"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Histórico de Achados (FalkorDB)</h2>
+        <div style="display:flex; gap:8px;">
+          <select id="filter_sev" onchange="loadFindings()" style="width:160px;">
+            <option value="">Todas severidades</option>
+            <option value="critica">Crítica</option>
+            <option value="alta">Alta</option>
+            <option value="media">Média</option>
+            <option value="baixa">Baixa</option>
+          </select>
+          <input id="filter_file" placeholder="Filtrar por arquivo..." oninput="loadFindings()">
+          <button onclick="loadFindings()" style="margin-top:4px;">Atualizar</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Sev.</th>
+              <th>Arquivo</th>
+              <th>Regra</th>
+              <th>Mensagem</th>
+              <th>Notif.</th>
+            </tr>
+          </thead>
+          <tbody id="findings_body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ROW_HEIGHT = 24;
+    let activityEvents = [];
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function renderVirtualShell() {
+      const vp = document.getElementById('shell_viewport');
+      const spacer = document.getElementById('shell_spacer');
+      const itemsEl = document.getElementById('shell_items');
+      const total = activityEvents.length;
+      spacer.style.height = (total * ROW_HEIGHT) + 'px';
+
+      const start = Math.max(0, Math.floor(vp.scrollTop / ROW_HEIGHT) - 2);
+      const visibleCount = Math.ceil(vp.clientHeight / ROW_HEIGHT) + 5;
+      const end = Math.min(total, start + visibleCount);
+
+      itemsEl.style.transform = `translateY(${start * ROW_HEIGHT}px)`;
+      let html = '';
+      for (let i = start; i < end; i++) {
+        const ev = activityEvents[i];
+        html += `<div class="shell-line ev-${escapeHtml(ev.type)}">[${escapeHtml(ev.timestamp)}] [${escapeHtml(ev.type.toUpperCase())}] ${escapeHtml(ev.file_path)} — ${escapeHtml(ev.message)}</div>`;
+      }
+      itemsEl.innerHTML = html;
+      document.getElementById('shell_count').textContent = `${total} evento(s)`;
+    }
+
+    function appendActivity(ev) {
+      const vp = document.getElementById('shell_viewport');
+      const atBottom = (vp.scrollTop + vp.clientHeight) >= (vp.scrollHeight - ROW_HEIGHT * 2);
+      activityEvents.push(ev);
+      if (activityEvents.length > 1000) activityEvents.shift();
+      renderVirtualShell();
+      if (atBottom) vp.scrollTop = vp.scrollHeight;
+      if (ev.type === 'finding') loadFindings();
+    }
+
+    async function initActivity() {
+      const r = await fetch('/api/activity');
+      if (r.ok) {
+        const data = await r.json();
+        activityEvents = data.items || [];
+        renderVirtualShell();
+        const vp = document.getElementById('shell_viewport');
+        vp.scrollTop = vp.scrollHeight;
+      }
+      const es = new EventSource('/api/events');
+      es.onmessage = (msg) => {
+        try { appendActivity(JSON.parse(msg.data)); } catch (_) { }
+      };
+    }
+
+    async function pickDirectory() {
+      if (!('showDirectoryPicker' in window)) {
+        console.warn('showDirectoryPicker não suportado neste navegador');
+        return;
+      }
+
+      try {
+        const dirHandle = await window.showDirectoryPicker();
+        const entries = [];
+        for await (const [name, handle] of dirHandle.entries()) {
+          entries.push({ name, kind: handle.kind });
+        }
+        console.log('Pasta selecionada:', dirHandle.name, entries);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error(err);
+        }
+      }
+    }
+
+    async function verificarPermissao(dirHandle) {
+      const opts = { mode: 'read' }; // ou 'readwrite'
+      if ((await dirHandle.queryPermission(opts)) === 'granted') {
+        return true;
+      }
+      return (await dirHandle.requestPermission(opts)) === 'granted';
+    }
+
+    async function onFolderPicked(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      const msg = document.getElementById('cfg_msg');
+      const rel = files[0].webkitRelativePath || '';
+      const folderName = rel.split('/')[0] || '';
+      if (!folderName) return;
+
+      msg.textContent = `Resolvendo caminho de "${folderName}"...`;
+      const r = await fetch('/api/resolve-folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folder_name: folderName })
+      });
+      if (r.ok) {
+        const data = await r.json();
+        if (data.path) {
+          document.getElementById('watch_path').value = data.path;
+          msg.textContent = 'Pasta localizada. Clique em Salvar Configuração.';
+          return;
+        }
+      }
+      document.getElementById('watch_path').value = folderName;
+      msg.textContent = 'O navegador oculta o caminho completo; complete o prefixo (ex.: C:\\...) e salve.';
+    }
+
+    async function loadHealth() {
+      const r = await fetch('/api/health');
+      const h = await r.json();
+      document.getElementById('health').textContent =
+        `Watcher: ${h.watcher_active ? 'Ativo' : 'Inativo'} | LLM (${h.llm_port}): ${h.llm_ready ? 'Pronto' : 'Aguardando/Offline'} | FalkorDB: ${h.falkordb_ready ? 'Conectado' : 'Offline'}`;
+    }
+    async function loadConfig() {
+      const r = await fetch('/api/config');
+      if (!r.ok) return;
+      const c = await r.json();
+      document.getElementById('watch_path').value = c.watch_path || '';
+      document.getElementById('min_severity').value = c.min_severity || 'alta';
+      document.getElementById('silenced_rules').value = (c.silenced_rules || []).join(',');
+      document.getElementById('extensions').value = (c.extensions || []).join(',');
+      document.getElementById('debounce_ms').value = c.debounce_ms || 500;
+    }
+    async function saveConfig() {
+      const body = {
+        watch_path: document.getElementById('watch_path').value.trim(),
+        min_severity: document.getElementById('min_severity').value,
+        silenced_rules: document.getElementById('silenced_rules').value.split(',').map(s => s.trim()).filter(Boolean),
+        extensions: document.getElementById('extensions').value.split(',').map(s => s.trim()).filter(Boolean),
+        debounce_ms: parseInt(document.getElementById('debounce_ms').value, 10) || 500
+      };
+      const r = await fetch('/api/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const msg = document.getElementById('cfg_msg');
+      msg.textContent = r.ok ? 'Configuração salva no FalkorDB.' : 'Erro: ' + await r.text();
+      loadHealth();
+    }
+    async function loadFindings() {
+      const sev = document.getElementById('filter_sev').value;
+      const file = document.getElementById('filter_file').value.trim();
+      const params = new URLSearchParams();
+      if (sev) params.set('severity', sev);
+      if (file) params.set('file', file);
+      const r = await fetch('/api/findings?' + params.toString());
+      if (!r.ok) return;
+      const data = await r.json();
+      const tbody = document.getElementById('findings_body');
+      tbody.innerHTML = (data.items || []).map(f => `
+        <tr>
+          <td>${escapeHtml((f.created_at || '').slice(11, 19))}</td>
+          <td><span class="badge ${escapeHtml(f.severity)}">${escapeHtml(f.severity)}</span></td>
+          <td>${escapeHtml(f.file_path)}:${f.line_start}</td>
+          <td>${escapeHtml(f.rule_id)}</td>
+          <td>${escapeHtml(f.message)}</td>
+          <td>${f.notified ? 'Sim' : escapeHtml(f.suppression_reason || 'Não')}</td>
+        </tr>`).join('');
+    }
+    loadHealth(); loadConfig(); loadFindings(); initActivity();
+    setInterval(() => { loadHealth(); loadFindings(); }, 5000);
+  </script>
+</body>
+
+</html>

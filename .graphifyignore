@@ -39,6 +39,3 @@ coverage.*
 profile.cov
 go.work
 go.work.sum
-
-# Env files
-.env.*
