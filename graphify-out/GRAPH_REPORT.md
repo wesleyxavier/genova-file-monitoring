@@ -1,16 +1,16 @@
-# Graph Report - GenovaFileMonitoring  (2026-11-24)
+# Graph Report - 001-local-file-monitor  (2026-11-24)
 
 ## Corpus Check
-- 51 files · ~49,917 words
+- 82 files · ~65,233 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 353 nodes · 327 edges · 42 communities (41 shown, 1 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- 631 nodes · 771 edges · 58 communities (57 shown, 1 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 43 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2e36008c`
+- Built from commit: `49022261`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -35,6 +35,7 @@
 - SKILL.md
 - SKILL.md
 - [CHECKLIST TYPE] Checklist: [FEATURE NAME]
+- main.go
 - github.com/wesleyxavier/genova-file-monitoring
 - Execution Steps
 - SKILL.md
@@ -45,26 +46,51 @@
 - SKILL.md
 - SKILL.md
 - SKILL.md
+- Server
+- Watcher
+- FalkorStore
+- llm_client.go
+- Tasks: Monitor Local de Boas Práticas (v1)
+- Queue
+- User Scenarios & Testing *(mandatory)*
+- LlamaProcess
+- Data Model: Monitor Local de Boas Práticas (v1)
+- Implementation Plan: Monitor Local de Boas Práticas (v1)
+- Endpoints JSON
+- Research: Monitor Local de Boas Práticas (v1)
+- Specification Quality Checklist: Monitor Local de Boas Práticas (v1)
+- fakeGraphClient
+- Contract: LLM Analysis Input & Output Schema
+- Quickstart & Validation Guide: Monitor Local de Boas Práticas (v1)
 
 ## God Nodes (most connected - your core abstractions)
-1. `Tasks: [FEATURE NAME]` - 13 edges
-2. `Core Principles` - 12 edges
-3. `genova-file-monitoring — Instruções para Agentes de IA` - 8 edges
-4. `Execution Steps` - 7 edges
-5. `4. Detection Passes (Token-Efficient Analysis)` - 7 edges
-6. `Execution Steps` - 7 edges
-7. `Execution Steps` - 7 edges
-8. `4. Detection Passes (Token-Efficient Analysis)` - 7 edges
-9. `Execution Steps` - 7 edges
-10. `Core Principles` - 6 edges
+1. `Server` - 18 edges
+2. `MonitoringConfig` - 17 edges
+3. `appRuntime` - 14 edges
+4. `Finding` - 13 edges
+5. `Tasks: [FEATURE NAME]` - 13 edges
+6. `Core Principles` - 12 edges
+7. `Queue` - 11 edges
+8. `Severity` - 11 edges
+9. `Tasks: Monitor Local de Boas Práticas (v1)` - 11 edges
+10. `main()` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
-- None detected - all connections are within the same source files.
+- `main()` --calls--> `LoadEnvConfig()`  [INFERRED]
+  cmd/genova-file-monitoring/main.go → internal/analyzer/env.go
+- `main()` --calls--> `NewLLMClient()`  [INFERRED]
+  cmd/genova-file-monitoring/main.go → internal/analyzer/llm_client.go
+- `main()` --calls--> `NewLlamaProcess()`  [INFERRED]
+  cmd/genova-file-monitoring/main.go → internal/analyzer/process.go
+- `main()` --calls--> `NewFalkorStore()`  [INFERRED]
+  cmd/genova-file-monitoring/main.go → internal/store/falkordb.go
+- `main()` --calls--> `DefaultConfig()`  [INFERRED]
+  cmd/genova-file-monitoring/main.go → internal/store/models.go
 
 ## Import Cycles
 - None detected.
 
-## Communities (42 total, 1 thin omitted)
+## Communities (58 total, 1 thin omitted)
 
 ### Community 0 - "Tasks: [FEATURE NAME]"
 Cohesion: 0.07
@@ -146,6 +172,10 @@ Nodes (5): Deprecation Notice, Outline, Post-Execution Checks, Pre-Execution Che
 Cohesion: 0.40
 Nodes (4): [Category 1], [Category 2], [CHECKLIST TYPE] Checklist: [FEATURE NAME], Notes
 
+### Community 20 - "main.go"
+Cohesion: 0.05
+Nodes (39): CancelFunc, Context, Mutex, main(), appRuntime, HashSnippet(), newFindingID(), RunDeterministic() (+31 more)
+
 ### Community 33 - "Execution Steps"
 Cohesion: 0.12
 Nodes (15): 1. Initialize Convergence Context, 2. Load Artifacts (Progressive Disclosure), 3. Build the Intent Inventory, 4. Assess the Codebase and Classify Findings, 5. Assign Severity, 6. Present the In-Session Findings Summary, 7. Append Convergence Tasks (or report converged), 8. Provide Next Actions (Handoff) (+7 more)
@@ -182,25 +212,89 @@ Nodes (5): Outline, Post-Execution Checks, Pre-Execution Checks, Scope Guard, Us
 Cohesion: 0.33
 Nodes (5): Deprecation Notice, Outline, Post-Execution Checks, Pre-Execution Checks, User Input
 
+### Community 42 - "Server"
+Cohesion: 0.20
+Nodes (9): Handler, Context, PickFolderNative(), Context, writeJSON(), Request, ResponseWriter, HealthProvider (+1 more)
+
+### Community 43 - "Watcher"
+Cohesion: 0.14
+Nodes (11): Event, NewFilter(), T, TestFilterExtensionsAndIgnores(), TestIsEligibleContent(), Context, RWMutex, New() (+3 more)
+
+### Community 44 - "FalkorStore"
+Cohesion: 0.12
+Nodes (18): asBool(), asInt(), asString(), cypherQuote(), Client, Context, NewFalkorStore(), NewFalkorStoreWithClient() (+10 more)
+
+### Community 45 - "llm_client.go"
+Cohesion: 0.16
+Nodes (16): chatCompletionRequest, chatCompletionResponse, chatMessage, EnvConfig, LLMClient, rawLLMFinding, rawLLMOutput, LoadEnvConfig() (+8 more)
+
+### Community 46 - "Tasks: Monitor Local de Boas Práticas (v1)"
+Cohesion: 0.11
+Nodes (17): 0. Branch, 1.1 Commit Group 1, 2.1 Commit Group 2, 3.1 Commit Group 3, 4.1 Commit Group 4, 5.1 Commit Group 5, 6.1 Commit Group 6, Dependencies & Execution Order (+9 more)
+
+### Community 47 - "Queue"
+Cohesion: 0.21
+Nodes (8): Context, Duration, Mutex, New(), T, TestQueueDebounceAndSequentialExecution(), Queue, Timer
+
+### Community 48 - "User Scenarios & Testing *(mandatory)*"
+Cohesion: 0.14
+Nodes (13): Assumptions, Edge Cases, Feature Specification: Monitor Local de Boas Práticas (v1), Functional Requirements, Key Entities *(include if feature involves data)*, Measurable Outcomes, Requirements *(mandatory)*, Success Criteria *(mandatory)* (+5 more)
+
+### Community 49 - "LlamaProcess"
+Cohesion: 0.19
+Nodes (8): LlamaProcess, Bool, Cmd, Context, Duration, Mutex, NewLlamaProcess(), splitCommandArgs()
+
+### Community 50 - "Data Model: Monitor Local de Boas Práticas (v1)"
+Cohesion: 0.22
+Nodes (8): 1. `:MonitoringConfig` (Singleton `id = "default"`), 2. `:Finding`, 3. `DebounceEntry` (em `internal/queue`), 4. `NotificationWindow` (em `internal/notify`), Data Model: Monitor Local de Boas Práticas (v1), Entidades em Memória (Execução), Entidades Persistidas no FalkorDB, Regras de Transição (Notificação vs. Histórico)
+
+### Community 51 - "Implementation Plan: Monitor Local de Boas Práticas (v1)"
+Cohesion: 0.22
+Nodes (8): Complexity Tracking, Constitution Check, Documentation (this feature), Implementation Plan: Monitor Local de Boas Práticas (v1), Project Structure, Source Code (repository root), Summary, Technical Context
+
+### Community 52 - "Endpoints JSON"
+Cohesion: 0.25
+Nodes (7): Contract: Local HTTP API & Web UI (`127.0.0.1`), Endpoints JSON, `GET /api/config`, `GET /api/findings`, `GET /api/health`, `PUT /api/config`, Rotas HTML
+
+### Community 53 - "Research: Monitor Local de Boas Práticas (v1)"
+Cohesion: 0.25
+Nodes (7): 1. Cliente FalkorDB em Go (Configurações e Histórico), 2. Gerenciamento do `llama-server` e Comunicação LLM, 3. Watcher Recursivo, Debounce e Fila Sequencial, 4. Regras Determinísticas Pré-LLM, 5. Notificações Windows e Controle de Ruído, 6. Interface Web Local (`127.0.0.1`), Research: Monitor Local de Boas Práticas (v1)
+
+### Community 54 - "Specification Quality Checklist: Monitor Local de Boas Práticas (v1)"
+Cohesion: 0.33
+Nodes (5): Content Quality, Feature Readiness, Notes, Requirement Completeness, Specification Quality Checklist: Monitor Local de Boas Práticas (v1)
+
+### Community 55 - "fakeGraphClient"
+Cohesion: 0.25
+Nodes (6): Mutex, NewActivityHub(), T, TestServerBindAndEndpoints(), ActivityEvent, ActivityHub
+
+### Community 56 - "Contract: LLM Analysis Input & Output Schema"
+Cohesion: 0.40
+Nodes (4): Contract: LLM Analysis Input & Output Schema, Isolamento de Prompt (Mitigação de Prompt Injection), Regras de Validação no App Go, Schema de Resposta Esperado (JSON Estrito)
+
+### Community 57 - "Quickstart & Validation Guide: Monitor Local de Boas Práticas (v1)"
+Cohesion: 0.40
+Nodes (4): Cenários de Validação Ponta a Ponta, Pré-requisitos, Quickstart & Validation Guide: Monitor Local de Boas Práticas (v1), Verificação Automatizada (Build & Testes)
+
 ## Knowledge Gaps
-- **251 isolated node(s):** `github.com/wesleyxavier/genova-file-monitoring`, `User Input`, `Pre-Execution Checks`, `Goal`, `Operating Constraints` (+246 more)
+- **303 isolated node(s):** `github.com/wesleyxavier/genova-file-monitoring`, `chatCompletionResponse`, `User Input`, `Pre-Execution Checks`, `Goal` (+298 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **What connects `github.com/wesleyxavier/genova-file-monitoring`, `User Input`, `Pre-Execution Checks` to the rest of the system?**
-  _251 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `appRuntime` connect `main.go` to `Watcher`, `llm_client.go`, `Queue`, `LlamaProcess`, `fakeGraphClient`?**
+  _High betweenness centrality (0.044) - this node is a cross-community bridge._
+- **Why does `MonitoringConfig` connect `main.go` to `Server`, `FalkorStore`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+- **Why does `Server` connect `Server` to `main.go`, `fakeGraphClient`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **What connects `github.com/wesleyxavier/genova-file-monitoring`, `chatCompletionResponse`, `User Input` to the rest of the system?**
+  _303 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Tasks: [FEATURE NAME]` be split into smaller, more focused modules?**
   _Cohesion score 0.07407407407407407 - nodes in this community are weakly interconnected._
 - **Should `Execution Steps` be split into smaller, more focused modules?**
   _Cohesion score 0.125 - nodes in this community are weakly interconnected._
 - **Should `genova-file-monitoring — Instruções para Agentes de IA` be split into smaller, more focused modules?**
   _Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected._
-- **Should `SKILL.md` be split into smaller, more focused modules?**
-  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
-- **Should `4. Detection Passes (Token-Efficient Analysis)` be split into smaller, more focused modules?**
-  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
-- **Should `Core Principles` be split into smaller, more focused modules?**
-  _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._

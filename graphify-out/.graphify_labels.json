@@ -40,5 +40,21 @@
   "38": "SKILL.md",
   "39": "SKILL.md",
   "40": "SKILL.md",
-  "41": "SKILL.md"
+  "41": "SKILL.md",
+  "42": "Server",
+  "43": "Watcher",
+  "44": "FalkorStore",
+  "45": "llm_client.go",
+  "46": "Tasks: Monitor Local de Boas Práticas (v1)",
+  "47": "Queue",
+  "48": "User Scenarios & Testing *(mandatory)*",
+  "49": "LlamaProcess",
+  "50": "Data Model: Monitor Local de Boas Práticas (v1)",
+  "51": "Implementation Plan: Monitor Local de Boas Práticas (v1)",
+  "52": "Endpoints JSON",
+  "53": "Research: Monitor Local de Boas Práticas (v1)",
+  "54": "Specification Quality Checklist: Monitor Local de Boas Práticas (v1)",
+  "55": "fakeGraphClient",
+  "56": "Contract: LLM Analysis Input & Output Schema",
+  "57": "Quickstart & Validation Guide: Monitor Local de Boas Práticas (v1)"
 }
